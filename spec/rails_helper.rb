@@ -41,7 +41,10 @@ RSpec.configure do |config|
 
   # DatabaseCleaner setup
   config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation)
+    DatabaseCleaner.clean_with(
+      :truncation,
+      except: %w(ar_internal_metadata)
+    )
   end
   config.before(:each) do
       DatabaseCleaner.strategy = :transaction
@@ -61,6 +64,7 @@ RSpec.configure do |config|
   config.after(:all) do
       DatabaseCleaner.clean
     end
+  
 
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and
