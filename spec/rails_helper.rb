@@ -41,6 +41,8 @@ RSpec.configure do |config|
 
   # DatabaseCleaner setup
   config.before(:suite) do
+    DatabaseCleaner.allow_production = true
+    DatabaseCleaner.allow_remote_database_url = true
     DatabaseCleaner.clean_with(
       :truncation,
       except: %w(ar_internal_metadata)

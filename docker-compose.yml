@@ -1,0 +1,32 @@
+version: '3'
+services:
+  api:
+    build: .
+    command: rspec
+    ports:
+      - 3000:3000
+    command: bash -c "rails s --binding 0.0.0.0 --port 3000"
+    volumes:
+      - '.:/app'
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db/api
+      DATABASE_URL_DEV: postgres://postgres:postgres@db/api_dev
+      DATABASE_URL_TEST: postgres://postgres:postgres@db/api_test
+      DATABASE_CLEANER_ALLOW_REMOTE_DATABASE_URL: 'true'
+    depends_on: 
+      - db
+  
+  db:
+    image: postgres:12
+    ports:
+        - 5432:5432
+    volumes:
+      - ./tmp/db:/var/lib/postgres/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+  
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+
