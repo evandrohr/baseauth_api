@@ -7,7 +7,7 @@ services:
       - 3000:3000
     command: bash -c "rails s --binding 0.0.0.0 --port 3000"
     volumes:
-      - '.:/app'
+      - '.:/usr/src/app'
     environment:
       DATABASE_URL: postgres://postgres:postgres@db/api
       DATABASE_URL_DEV: postgres://postgres:postgres@db/api_dev
