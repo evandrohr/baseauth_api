@@ -29,11 +29,17 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   # User. As you add validations to User, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    { name: 'Usuario',
+      email: 'another_user@mail.com',
+      password: '123123123',
+      password_confirmation: '123123123' }
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    { name: 'Usuario',
+      email: '',
+      password: '',
+      password_confirmation: '' }
   }
 
   # This should return the minimal set of values that should be in the session
@@ -41,9 +47,15 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   # UsersController. Be sure to keep this updated too.
   let(:valid_session) { {} }
 
+  let(:auth_token) {
+    User.create!(email: 'user@mail.com', password: '123123123', password_confirmation: '123123123' )
+    AuthenticateUser.call('user@mail.com', '123123123').result
+  }
+
   describe "GET #index" do
     it "returns a success response" do
       user = User.create! valid_attributes
+      request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
       get :index, params: {}, session: valid_session
       expect(response).to be_successful
     end
@@ -52,6 +64,7 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   describe "GET #show" do
     it "returns a success response" do
       user = User.create! valid_attributes
+      request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
       get :show, params: {id: user.to_param}, session: valid_session
       expect(response).to be_successful
     end
@@ -60,26 +73,27 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   describe "POST #create" do
     context "with valid params" do
       it "creates a new User" do
+        request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
         expect {
           post :create, params: {user: valid_attributes}, session: valid_session
         }.to change(User, :count).by(1)
       end
 
       it "renders a JSON response with the new user" do
-
+        request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
         post :create, params: {user: valid_attributes}, session: valid_session
         expect(response).to have_http_status(:created)
-        expect(response.content_type).to eq('application/json')
-        expect(response.location).to eq(user_url(User.last))
+        expect(response.content_type).to include('application/json')
+        expect(response.parsed_body['data']['id']).to eq(api_v1_user_url(User.find(response.parsed_body['data']['id'])).split('/').last)
       end
     end
 
     context "with invalid params" do
       it "renders a JSON response with errors for the new user" do
-
+        request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
         post :create, params: {user: invalid_attributes}, session: valid_session
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to include('application/json')
       end
     end
   end
@@ -87,38 +101,46 @@ RSpec.describe Api::V1::UsersController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { name: 'Usuario2',
+          email: 'another_user2@mail.com',
+          password: '123123123',
+          password_confirmation: '123123123' }
       }
 
       it "updates the requested user" do
+        request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
         user = User.create! valid_attributes
         put :update, params: {id: user.to_param, user: new_attributes}, session: valid_session
         user.reload
-        skip("Add assertions for updated state")
+        expect(user.name).to eq(new_attributes[:name])
+        expect(user.email).to eq(new_attributes[:email])
       end
 
       it "renders a JSON response with the user" do
+        request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
         user = User.create! valid_attributes
 
         put :update, params: {id: user.to_param, user: valid_attributes}, session: valid_session
         expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to include('application/json')
       end
     end
 
     context "with invalid params" do
       it "renders a JSON response with errors for the user" do
+        request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
         user = User.create! valid_attributes
 
         put :update, params: {id: user.to_param, user: invalid_attributes}, session: valid_session
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq('application/json')
+        expect(response.content_type).to include('application/json')
       end
     end
   end
 
   describe "DELETE #destroy" do
     it "destroys the requested user" do
+      request.headers.merge!({'Authorization': auth_token, 'Content-Type': 'application/json'})
       user = User.create! valid_attributes
       expect {
         delete :destroy, params: {id: user.to_param}, session: valid_session
