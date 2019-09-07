@@ -10,8 +10,6 @@
 #  updated_at      :datetime         not null
 #
 
-class User < ApplicationRecord
-  has_secure_password
-  validates_presence_of :email, :password_digest
-  
+class UserSerializer < ActiveModel::Serializer
+  attributes :id, :name, :email, :created_at
 end
